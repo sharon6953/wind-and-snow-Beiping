@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>點亮可以形容風的詞語</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0b1a2e 0%, #1b2f45 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+            padding: 16px;
+            margin: 0;
+        }
+
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 48px 48px 32px 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 2px #d4b68a inset;
+            padding: 24px 28px 36px;
+            color: #f5ecd9;
+            transition: all 0.2s;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2e3f4e;
+            border-radius: 60px;
+            padding: 12px 28px;
+            margin-bottom: 28px;
+            border: 2px solid #cdb28b;
+            box-shadow: 0 6px 0 #0f1a24;
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #1d2b36;
+            padding: 8px 22px;
+            border-radius: 40px;
+            border: 1px solid #bfa77a;
+            font-weight: 500;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+
+        .timer-icon {
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 6px gold);
+        }
+
+        #timerDisplay {
+            font-family: 'Courier New', monospace;
+            background: #0d1b24;
+            padding: 6px 16px;
+            border-radius: 30px;
+            color: #ffecb3;
+            border: 1px solid #ebc27a;
+            font-size: 1.8rem;
+            font-weight: 700;
+            min-width: 110px;
+            text-align: center;
+        }
+
+        .start-btn {
+            background: #f3d37c;
+            border: none;
+            color: #1f2e3b;
+            font-size: 1.7rem;
+            font-weight: bold;
+            padding: 12px 36px;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 7px 0 #a0814e, 0 8px 12px black;
+            transition: 0.07s linear;
+            font-family: 'Microsoft JhengHei', sans-serif;
+            letter-spacing: 2px;
+            border: 2px solid #ffefc0;
+            transform: translateY(-2px);
+        }
+
+        .start-btn:active {
+            box-shadow: 0 3px 0 #7d623c;
+            transform: translateY(4px);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.6;
+            box-shadow: 0 4px 0 #7d623c;
+            transform: translateY(3px);
+            pointer-events: none;
+            filter: grayscale(0.3);
+        }
+
+        .message-banner {
+            background: #f3c3a0;
+            color: #3a2618;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 40px;
+            margin: 0 8px 22px 8px;
+            border: 3px solid #b45f2b;
+            box-shadow: 0 4px 0 #6e3f1f;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            word-break: break-word;
+        }
+
+        .message-banner.show {
+            opacity: 1;
+        }
+
+        .words-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px 18px;
+            margin: 20px 0 18px;
+        }
+
+        @media (min-width: 550px) {
+            .words-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .word-card {
+            background: #203142;
+            border-radius: 60px 16px 60px 16px;
+            border: 3px solid #b89b6e;
+            padding: 14px 6px 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #0f1f2b;
+            transition: all 0.1s;
+            user-select: none;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #faeacb;
+            min-height: 70px;
+        }
+
+        .word-card:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #0f1f2b;
+        }
+
+        .word-text {
+            flex: 1;
+            padding-right: 6px;
+            text-align: center;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 #1f2e3f;
+        }
+
+        .star {
+            font-size: 2.4rem;
+            line-height: 1;
+            transition: 0.15s;
+            filter: drop-shadow(0 0 4px silver);
+            background: none;
+            border: none;
+            width: 48px;
+            text-align: center;
+        }
+
+        .star.lit {
+            filter: drop-shadow(0 0 12px #ffd966) drop-shadow(0 0 20px #f7b32b);
+            color: #ffdb7c;
+            text-shadow: 0 0 12px #fbb724;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 28px;
+            font-size: 1.3rem;
+            background: #1f313e;
+            border-radius: 40px;
+            padding: 10px 16px;
+            border: 1px solid #a5875a;
+        }
+
+        .group-badge {
+            background: #4a6172;
+            padding: 8px 24px;
+            border-radius: 32px;
+            color: #ffefcf;
+            font-weight: 600;
+            border: 2px solid #dbbd8c;
+        }
+
+        .penalty-icon {
+            color: #ffa07a;
+            margin-left: 12px;
+            font-size: 1rem;
+            cursor: help;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <!-- 頂部：計時＋開始按鈕 -->
+    <div class="header">
+        <div class="timer-section">
+            <span class="timer-icon">⏳</span>
+            <span id="timerDisplay">00:00</span>
+        </div>
+        <button class="start-btn" id="startBtn" autofocus>開始第一組</button>
+    </div>
+
+    <!-- 提示橫幅（同時用於錯誤＋20s提示） -->
+    <div id="messageBanner" class="message-banner">再想一想，加油！</div>
+
+    <!-- 詞語卡片網格 -->
+    <div id="wordsContainer" class="words-grid"></div>
+
+    <!-- 底部顯示當前組別與規則提示 -->
+    <div class="footer-info">
+        <span class="group-badge" id="groupName">第一組</span>
+        <span class="penalty-icon" title="點錯干擾詞，計時+20秒">⚠️ +20s</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- 繁體中文訊息 -----
+        const MSG_TRY_AGAIN = '再想一想，加油！  +20秒';
+        const MSG_START_FIRST = '請先點擊「開始」按鈕';
+
+        // ----- 定義兩組詞語 (根據最新要求：第一組10詞，第二組10詞) -----
+        const groups = [
+            {
+                name: '第一組',
+                words: [
+                    { text: '凜冽', correct: true, selected: false },
+                    { text: '刺骨', correct: true, selected: false },
+                    { text: '溫柔', correct: true, selected: false },
+                    { text: '沉重', correct: false, selected: false },   // 干擾
+                    { text: '狂嘯', correct: true, selected: false },
+                    { text: '輕柔', correct: true, selected: false },
+                    { text: '崎嶇', correct: false, selected: false },   // 干擾
+                    { text: '猛烈', correct: true, selected: false },
+                    { text: '明亮', correct: false, selected: false },   // 干擾
+                    { text: '寒冷', correct: true, selected: false }     // 第七個正確
+                ]
+            },
+            {
+                name: '第二組',
+                words: [
+                    { text: '肅殺', correct: true, selected: false },
+                    { text: '徹骨', correct: true, selected: false },
+                    { text: '冷颼颼', correct: true, selected: false },
+                    { text: '冰冷', correct: true, selected: false },
+                    { text: '蕭瑟', correct: true, selected: false },
+                    { text: '刺眼', correct: false, selected: false },   // 干擾
+                    { text: '滾燙', correct: false, selected: false },   // 干擾
+                    { text: '狂野', correct: true, selected: false },
+                    { text: '柔和', correct: true, selected: false },
+                    { text: '雄偉', correct: false, selected: false }    // 干擾 (第七個干擾)
+                ]
+            }
+        ];
+
+        // 遊戲狀態
+        let currentGroupIndex = 0;                // 0: 第一組, 1: 第二組
+        let gameActive = false;                   // 是否允許點擊 (計時開始才為true)
+        let groupCompleted = [false, false];      // 各組是否已完成
+        let timerInterval = null;
+        let timerSeconds = 0;
+        let countSelected = 0;                     // 當前組已選中正確詞數量 (0-7)
+
+        // DOM 元素
+        const wordsContainer = document.getElementById('wordsContainer');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const messageBanner = document.getElementById('messageBanner');
+        const groupNameSpan = document.getElementById('groupName');
+
+        // 輔助函數：顯示橫幅 (自動消失)
+        function showMessage(text, isError = true) {
+            messageBanner.textContent = text;
+            messageBanner.classList.add('show');
+            setTimeout(() => {
+                messageBanner.classList.remove('show');
+            }, 1300);
+        }
+
+        // 更新計時器顯示 (mm:ss)
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // 停止計時 (清空interval)
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // 開始計時 (如果已在運作則先停止)
+        function startTimer() {
+            stopTimer(); // 確保只有一個計時器
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        // 重置計時為0並停止
+        function resetTimer() {
+            stopTimer();
+            timerSeconds = 0;
+            updateTimerDisplay();
+        }
+
+        // 重新計算當前組的選中正確數量 (遍歷words)
+        function recalcSelectedCount() {
+            const words = groups[currentGroupIndex].words;
+            return words.filter(w => w.selected && w.correct).length;
+        }
+
+        // 檢查並處理完成組 (當選中7個正確詞時呼叫)
+        function checkGroupCompletion() {
+            // 僅當遊戲活躍時才檢查完成
+            if (!gameActive) return false;
+
+            const currentWords = groups[currentGroupIndex].words;
+            const selectedCorrectCount = currentWords.filter(w => w.selected && w.correct).length;
+
+            if (selectedCorrectCount === 7) {
+                // 完成當前組！
+                gameActive = false;
+                stopTimer();
+                groupCompleted[currentGroupIndex] = true;
+
+                // 根據組別更新開始按鈕狀態
+                if (currentGroupIndex === 0) {
+                    // 第一組完成，啟用按鈕並顯示「開始第二組」
+                    startBtn.disabled = false;
+                    startBtn.textContent = '開始第二組';
+                } else if (currentGroupIndex === 1) {
+                    // 第二組完成，按鈕禁用並顯示「全部完成」
+                    startBtn.disabled = true;
+                    startBtn.textContent = '✨ 全部完成 ✨';
+                }
+
+                // 顯示完成提示
+                showMessage(`🎉 第${currentGroupIndex+1}組完成！`, false);
+                return true;
+            }
+            return false;
+        }
+
+        // 渲染當前組的詞語 (根據groups[currentGroupIndex])
+        function renderWords() {
+            const group = groups[currentGroupIndex];
+            groupNameSpan.textContent = `${group.name} · 選出7個風之詞`;
+
+            let html = '';
+            group.words.forEach((word, idx) => {
+                const starSymbol = word.selected ? '★' : '☆';
+                const litClass = word.selected ? 'lit' : '';
+                html += `
+                    <div class="word-card" data-index="${idx}">
+                        <span class="word-text">${word.text}</span>
+                        <span class="star ${litClass}">${starSymbol}</span>
+                    </div>
+                `;
+            });
+            wordsContainer.innerHTML = html;
+
+            // 更新計數
+            countSelected = recalcSelectedCount();
+        }
+
+        // 切換到指定組索引 (0或1) 並重置所有狀態 (不自動開始)
+        function switchToGroup(index) {
+            // 停掉計時、遊戲設為非活躍
+            gameActive = false;
+            stopTimer();
+            resetTimer();
+
+            currentGroupIndex = index;
+            // 重置該組所有詞的selected為false
+            const group = groups[currentGroupIndex];
+            group.words.forEach(w => w.selected = false);
+
+            // 重新計算選中數
+            countSelected = 0;
+            // 重新渲染
+            renderWords();
+
+            // 根據組完成狀態調整按鈕
+            if (groupCompleted[currentGroupIndex]) {
+                if (currentGroupIndex === 0 && groupCompleted[0]) {
+                    startBtn.textContent = '開始第二組';
+                    startBtn.disabled = false;
+                } else if (currentGroupIndex === 1 && groupCompleted[1]) {
+                    startBtn.textContent = '✨ 全部完成 ✨';
+                    startBtn.disabled = true;
+                }
+            } else {
+                startBtn.textContent = (currentGroupIndex === 0) ? '開始第一組' : '開始第二組';
+                startBtn.disabled = false;
+            }
+        }
+
+        // 處理點擊詞語 (事件代理)
+        function handleWordClick(e) {
+            const card = e.target.closest('.word-card');
+            if (!card) return;
+            const index = card.dataset.index;
+            if (index === undefined) return;
+
+            // 遊戲未開始 => 顯示提示
+            if (!gameActive) {
+                showMessage(MSG_START_FIRST);
+                return;
+            }
+
+            const group = groups[currentGroupIndex];
+            const word = group.words[index];
+
+            // ----- 新增懲罰機制：點錯（干擾詞）計時+20秒 -----
+            if (!word.correct) {
+                // 顯示橫幅（包含+20秒提醒）
+                showMessage(MSG_TRY_AGAIN);
+
+                // 增加20秒，並更新顯示
+                timerSeconds += 20;
+                updateTimerDisplay();
+
+                // 注意：不改變星星，直接返回
+                return;
+            }
+
+            // 以下是正確詞處理 (可切換星星)
+            const willSelect = !word.selected;  // 欲變成的狀態
+
+            // 如果試圖選中 (false -> true) 且目前已選正確數 == 7, 則不可再選中
+            if (willSelect && countSelected >= 7) {
+                // 可選：不做事 (也可以輕微提示，但需求未要求，靜默忽略)
+                return;
+            }
+
+            // 切換選中狀態
+            word.selected = willSelect;
+
+            // 重新計算已選正確數
+            countSelected = recalcSelectedCount();
+
+            // 重新渲染該卡片 (為了簡潔，重新渲染整個列表)
+            renderWords();
+
+            // 檢查是否完成組 (達到7個正確)
+            checkGroupCompletion();
+        }
+
+        // 開始按鈕點擊邏輯
+        function onStartClick() {
+            // 如果遊戲正在進行中，按鈕應disabled (但以防萬一加上判斷)
+            if (gameActive) return;
+
+            // 情況1: 第一組未完成，且當前組是第一組 => 開始第一組
+            if (currentGroupIndex === 0 && !groupCompleted[0]) {
+                gameActive = true;
+                startBtn.disabled = true;
+                startBtn.textContent = '第一組進行中';
+                resetTimer();
+                startTimer();
+                // 確保所有詞都是未選中
+                groups[0].words.forEach(w => w.selected = false);
+                renderWords();
+                countSelected = 0;
+                return;
+            }
+
+            // 情況2: 第一組已完成，且當前組是第一組，準備進入第二組
+            if (currentGroupIndex === 0 && groupCompleted[0]) {
+                // 切換到第二組，並直接開始遊戲
+                if (groupCompleted[1]) return; // 防呆
+
+                // 先切換組 (switch會重置gameActive, timer)
+                switchToGroup(1);      // 此時 gameActive = false, 按鈕變成"開始第二組"
+                // 然後立即啟動第二組
+                gameActive = true;
+                startBtn.disabled = true;
+                startBtn.textContent = '第二組進行中';
+                resetTimer();
+                startTimer();
+                groups[1].words.forEach(w => w.selected = false);
+                renderWords();
+                countSelected = 0;
+                return;
+            }
+
+            // 情況3: 第二組未完成且當前組是第二組 (例如手動切換，但正常不會)
+            if (currentGroupIndex === 1 && !groupCompleted[1]) {
+                gameActive = true;
+                startBtn.disabled = true;
+                startBtn.textContent = '第二組進行中';
+                resetTimer();
+                startTimer();
+                groups[1].words.forEach(w => w.selected = false);
+                renderWords();
+                countSelected = 0;
+                return;
+            }
+        }
+
+        // 初始化頁面 (第一組)
+        function initGame() {
+            currentGroupIndex = 0;
+            groupCompleted = [false, false];
+            gameActive = false;
+            stopTimer();
+            resetTimer();
+
+            groups[0].words.forEach(w => w.selected = false);
+            groups[1].words.forEach(w => w.selected = false);
+
+            renderWords();
+            startBtn.textContent = '開始第一組';
+            startBtn.disabled = false;
+            groupNameSpan.textContent = '第一組';
+        }
+
+        // 事件綁定
+        wordsContainer.addEventListener('click', handleWordClick);
+        startBtn.addEventListener('click', onStartClick);
+
+        // 啟動初始化
+        initGame();
+    })();
+</script>
+</body>
+</html>
